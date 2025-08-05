@@ -44,14 +44,17 @@ Spam Email Classifier/
 ```bash
 git clone https://github.com/yourusername/spam-email-classifier.git
 cd spam-email-classifier
+
 ### 2️⃣ Install dependencies
 '''
 pip install -r requirements.txt
 '''
+
 ### 3️⃣ Train the Model
 '''
 python -m src.train_model
 '''
+
 ### 4️⃣ Run the Streamlit App
 '''
 streamlit run app/streamlit_app.py
