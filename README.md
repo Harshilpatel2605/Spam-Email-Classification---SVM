@@ -1,4 +1,4 @@
-# 📩 Spam Email Classifier – Custom Linear SVM
+# 📩 Spam Email Classifier – SVM
 
 A machine learning project to classify SMS messages as **Spam** or **Ham** using a **Soft-Margin Linear SVM** implemented from scratch (Dual formulation with Quadratic Programming), combined with **TF-IDF** text feature extraction.  
 The project also includes a **Streamlit web app** for real-time message classification.
