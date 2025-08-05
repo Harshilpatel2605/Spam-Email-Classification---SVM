@@ -16,7 +16,7 @@ The project also includes a **Streamlit web app** for real-time message classifi
 - **TF-IDF Vectorization** – Converts raw text into numerical vectors while reducing noise with stop-word removal.
 - **Interactive Web App** – Built with **Streamlit** for live spam detection.
 - **Model Persistence** – Uses `pickle` to save and load the model and vectorizer.
-- **High Accuracy** – Achieved ~XX% test accuracy on SMS Spam dataset.
+- **High Accuracy** – Achieved ~99% test accuracy on SMS Spam dataset.
 
 ---
 
