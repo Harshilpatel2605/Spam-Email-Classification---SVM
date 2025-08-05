@@ -37,7 +37,6 @@ Spam Email Classifier/
 
 
 ---
-
 ## 🛠 Installation & Usage
 
 ### 1️⃣ Clone the Repository
@@ -45,22 +44,19 @@ Spam Email Classifier/
 git clone https://github.com/yourusername/spam-email-classifier.git
 cd spam-email-classifier
 
-### 2️⃣ Install dependencies
-'''
+2️⃣ Install Dependencies
+
 pip install -r requirements.txt
-'''
 
-### 3️⃣ Train the Model
-'''
+3️⃣ Train the Model
+
 python -m src.train_model
-'''
 
-### 4️⃣ Run the Streamlit App
-'''
+4️⃣ Run the Streamlit App
+
 streamlit run app/streamlit_app.py
-'''
 
-## 📊 Model Details
+📊 Model Details
 
     Algorithm: Soft Margin Linear SVM (Dual form)
 
@@ -72,6 +68,6 @@ streamlit run app/streamlit_app.py
 
     Evaluation Metric: Accuracy
 
-## Results
-- Accuracy : 99.01%
+📈 Results
 
+    Test Accuracy: 99.01%
