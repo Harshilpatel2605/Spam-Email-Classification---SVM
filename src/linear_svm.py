@@ -83,5 +83,6 @@ class LinearSVM:
     def predict(self, X):
         """Returns predicted labels in {-1, +1}"""
         vals = self.project(X)
-        return np.sign(vals).astype(int)
+        # Use a deterministic threshold to avoid returning 0 for exact boundary cases
+        return np.where(vals >= 0.0, 1, -1).astype(int)
     

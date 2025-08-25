@@ -7,24 +7,32 @@ from sklearn.metrics import accuracy_score, classification_report
 from sklearn.utils import resample
 import pickle
 from linear_svm import LinearSVM
-
 # -------------------------------
 # 1. Load dataset
 # -------------------------------
+import pandas as pd
+import re
+from sklearn.utils import resample
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 print("Loading the dataset...")
 df = pd.read_csv(
-    '../Dataset/combined_data.csv',
+    '../Dataset/combined_data.csv',  # adjust path if needed
     encoding='latin-1',
     sep=',',
     names=['label', 'text'],
     header=0
 )
 print("Dataset loaded successfully.\n")
-print(df['label'].value_counts())
+df.info()
+print(df.head(), "\n")
 
 # -------------------------------
-# 2. Preprocess text
+# 2. Preprocess text & balance dataset
 # -------------------------------
+
+# --- Clean text ---
 def clean_text(text):
     text = str(text).lower()
     text = re.sub(r'[^a-z\s]', '', text)  # keep only letters and spaces
@@ -32,23 +40,25 @@ def clean_text(text):
 
 df['text'] = df['text'].apply(clean_text)
 
-# -------------------------------
-# 3. Balance dataset (equal ham/spam)
-# -------------------------------
+# --- Separate ham and spam ---
 ham = df[df['label'] == 0]
 spam = df[df['label'] == 1]
 
-if len(spam) > len(ham):
-    spam = resample(spam, replace=False, n_samples=len(ham), random_state=42)
-else:
-    ham = resample(ham, replace=False, n_samples=len(spam), random_state=42)
+# --- Balance dataset ---
+n_samples = min(len(ham), len(spam))
+ham = resample(ham, replace=False, n_samples=n_samples, random_state=42)
+spam = resample(spam, replace=False, n_samples=n_samples, random_state=42)
 
+# --- Optional: limit size for memory ---
+# e.g., take max 10,000 samples total (7,500 ham + 7,500 spam)
+max_total = 10000
+n_per_class = max_total // 2
+ham = ham.sample(n=n_per_class, random_state=42)
+spam = spam.sample(n=n_per_class, random_state=42)
+
+# --- Combine & shuffle ---
 df = pd.concat([ham, spam]).sample(frac=1, random_state=42).reset_index(drop=True)
-print("Balanced dataset size:", df['label'].value_counts())
-
-# Optional: limit size if memory is an issue
-print("Taking only 10,000 samples (due to memory limits)...")
-df = df.sample(n=10000, random_state=42).reset_index(drop=True)
+print("Balanced dataset size:", df['label'].value_counts(), "\n")
 
 # -------------------------------
 # 4. Train-test split
@@ -69,8 +79,8 @@ print("Training Data : 60%, Validation Data : 20%, Test Data : 20%")
 vectorizer = TfidfVectorizer(
     stop_words='english',
     max_features=5000,
-    ngram_range=(1,2),
-    min_df=3
+    ngram_range=(1,1),
+    min_df=2
 )
 
 X_train = vectorizer.fit_transform(X_train).toarray()
@@ -126,3 +136,20 @@ print("Saving model and vectorizer...")
 pickle.dump(best_model, open('../models/svm_model.pkl', 'wb'))
 pickle.dump(vectorizer, open('../models/vectorizer.pkl', 'wb'))
 print("Model saved successfully.")
+
+
+def predict_spam(text: str) -> int:
+    """
+    Predict whether a message is spam (1) or not spam (0)
+    """
+    X = vectorizer.transform([text]).toarray()  # Convert to dense array
+    pred = best_model.predict(X)[0]                 # {-1, +1}
+    return 0 if pred == -1 else 1
+
+# Example: test in console
+while True:
+    msg = input("Enter a message to check (or 'exit' to quit): ")
+    if msg.lower() == 'exit':
+        break
+    result = predict_spam(msg)
+    print("Spam" if result == 1 else "Not Spam")
