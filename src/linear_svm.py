@@ -14,16 +14,15 @@ class LinearSVM:
         self.w = None
         self.b = 0.0
 
+    # X: numpy array shape (n_samples, n_features)
+    # y: numpy array shape (n_samples,) with values {-1, +1}
     def fit(self, X, y):
-        """
-        X: numpy array shape (n_samples, n_features)
-        y: numpy array shape (n_samples,) with values {-1, +1}
-        """
+        
         n_samples, n_features = X.shape
-        # Gram matrix for linear kernel: K = X X^T
+        # linear kernel matrix: K = X X^T
         K = X.dot(X.T)
 
-        # Build Q matrix: Q_ij = y_i y_j K_ij
+        # Q matrix: Q_ij = y_i y_j K_ij
         Q_np = np.outer(y, y) * K
         # For numerical stability, add tiny jitter to diagonal
         Q_np = Q_np + self.Q_jitter * np.eye(n_samples)
@@ -48,7 +47,7 @@ class LinearSVM:
         solvers.options['show_progress'] = False
         sol = solvers.qp(Q, q, G, h, A, b)
 
-        meu = np.ravel(sol['x']).astype(np.float64)  # solution vector (n_samples,)
+        meu = np.ravel(sol['x']).astype(np.float64)
 
         # Support vectors: mu > eps
         sv_mask = meu > self.eps
@@ -57,17 +56,16 @@ class LinearSVM:
         self.sv = X[sv_mask]
         self.sv_y = y[sv_mask]
 
-        # Compute primal weight vector w = sum_i mu_i y_i x_i (only SVs needed)
-        # (shape: (n_features,))
+        # Compute weight vector w* = sum_i mu_i y_i x_i (only SVs needed)
         self.w = ((self.meu_sv * self.sv_y)[:, None] * self.sv).sum(axis=0)
 
-        # Compute bias b using margin-support vectors: 0 < mu_i < C
+        # Compute bias b using margin-support vectors: 0 < mu_i < C and w* 
         margin_mask = (meu > self.eps) & (meu < self.C - self.eps)
         if np.any(margin_mask):
             b_vals = y[margin_mask] - X[margin_mask].dot(self.w)
             self.b = np.mean(b_vals)
         else:
-            # fallback: average over all support vectors
+            # average over all support vectors
             if self.sv.shape[0] > 0:
                 b_vals = self.sv_y - self.sv.dot(self.w)
                 self.b = np.mean(b_vals)
@@ -75,13 +73,15 @@ class LinearSVM:
                 self.b = 0.0
 
         return self
+    
 
+    # Returns decision function values (w^T x + b)
     def project(self, X):
-        """Returns decision function values (w^T x + b)"""
         return X.dot(self.w) + self.b
+    
 
+    # Returns predicted labels in {-1, +1}
     def predict(self, X):
-        """Returns predicted labels in {-1, +1}"""
         vals = self.project(X)
         # Use a deterministic threshold to avoid returning 0 for exact boundary cases
         return np.where(vals >= 0.0, 1, -1).astype(int)

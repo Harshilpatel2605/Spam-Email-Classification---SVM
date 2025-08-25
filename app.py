@@ -1,7 +1,7 @@
+# Streamlit app
+
 import sys
 import os
-
-# Ensure we can import from project root and src/
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 SRC_DIR = os.path.join(BASE_DIR, 'src')
 for _p in (BASE_DIR, SRC_DIR):
