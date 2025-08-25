@@ -1,9 +1,24 @@
-import pickle
-from src.linear_svm import LinearSVM  # Make sure this import matches how it was saved
 
-# Load model and vectorizer
-model = pickle.load(open('models/svm_model.pkl', 'rb'))
-vectorizer = pickle.load(open('models/vectorizer.pkl', 'rb'))
+import os
+import sys
+import pickle
+
+# Ensure both package-style and legacy module paths resolve for unpickling
+try:
+    from src.linear_svm import LinearSVM  # preferred path
+    # Alias to support models pickled with module name 'linear_svm'
+    import src.linear_svm as _svm_mod
+    sys.modules.setdefault('linear_svm', _svm_mod)
+except Exception:
+    # Fallback if running without package structure
+    from linear_svm import LinearSVM  # type: ignore
+
+# Get the base directory (project root)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Load model and vectorizer using absolute paths
+model = pickle.load(open(os.path.join(BASE_DIR, 'models', 'svm_model.pkl'), 'rb'))
+vectorizer = pickle.load(open(os.path.join(BASE_DIR, 'models', 'vectorizer.pkl'), 'rb'))
 
 def predict_spam(text: str) -> int:
     """
