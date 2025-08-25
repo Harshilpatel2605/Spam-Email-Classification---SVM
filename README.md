@@ -6,7 +6,7 @@ The project also includes a **Streamlit web app** for real-time message classifi
 ---
 
 ##  Live Demo
-🔗 [Spam Detector Web App](https://spam-detector-svm.streamlit.app/)
+🔗 [Spam Detector Web App](https://svm-spam-classifier.streamlit.app/)
 
 ---
 
